@@ -58,7 +58,7 @@ void solve() {
         if (checking == -1) {break;}
         elif (checking == 0) {rank[posi] = -1; continue;}
         for (int i = 0; i < origin_rank[posi]; ++i) {
-            if (rank[link[posi][i]] == -1) {continue;}
+            if (rank[link[posi][i]] <= -1) {continue;}
             vector<int> t_color;
             int step = 0;
             int situ = 0;
@@ -123,7 +123,7 @@ void solve() {
                 }
             }
         }
-        frs(i, 0, rank[posi]) {
+        frs(i, 0, origin_rank[posi]) {
             --rank[link[posi][i]];
         }
         rank[posi] = -1;
