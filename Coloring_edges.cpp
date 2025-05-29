@@ -28,16 +28,22 @@ void solve() {
     int v, e, color = 0;
     cin >> v >> e;
     vector<pair<int, int>> edge(e); //Vertices of edge
-    vector<int> ecolor(e, 0); //Color for that edge
+    vector<int> ecolor(e, -1); //Color for that edge
     vector<vector<int>> link(v); //Storing the vertices that 1 is linked to
     vector<vector<int>> vcolor(v); // Colored edge(s) of that vertex
     int rank[v];
+    int origin_rank[v];
+    fill_n(rank, v, 0);
     frs(i, 0, e) {
         cin >> edge[i].fi >> edge[i].se;
         ++rank[edge[i].fi];
         ++rank[edge[i].se];
         link[edge[i].fi].pb(edge[i].se);
         link[edge[i].se].pb(edge[i].fi);
+    }
+    frs(i, 0, v) {
+        sort(all(link[i]));
+        origin_rank[i] = rank[i];
     }
     int checking;
     while (true) {
@@ -51,7 +57,7 @@ void solve() {
         }
         if (checking == -1) {break;}
         elif (checking == 0) {rank[posi] = -1; continue;}
-        for (int i = 0; i < rank[posi]; ++i) {
+        for (int i = 0; i < origin_rank[posi]; ++i) {
             if (rank[link[posi][i]] == -1) {continue;}
             vector<int> t_color;
             int step = 0;
@@ -65,9 +71,12 @@ void solve() {
             if (t_color.empty()) {
                 vcolor[posi].pb(0);
                 vcolor[link[posi][i]].pb(0);
-                if (color != 0) {++color;}
+                if (color == 0) {++color;}
                 frs(j, 0, e) {
                     if (edge[j].fi == posi && edge[j].se == link[posi][i]) {
+                        ecolor[j] = 0;
+                        break;
+                    } elif (edge[j].fi == link[posi][i] && edge[j].se == posi) {
                         ecolor[j] = 0;
                         break;
                     }
@@ -76,8 +85,8 @@ void solve() {
             }
             sort(all(t_color));
             for (int j = 0; j < t_color.size(); ++j) {
-                if (i > 0) {
-                    if (t_color[i] == t_color[i-1]) {continue;}
+                if (j > 0) {
+                    if (t_color[j] == t_color[j-1]) {continue;}
                 }
                 if (t_color[j] > step) {
                     situ = 1;
@@ -86,15 +95,18 @@ void solve() {
                 ++step;
             }
             if (situ == 0) {
-                if (step == color) {
-                    vcolor[posi].pb(step);
-                    vcolor[link[posi][i]].pb(step);
-                    frs(j, 0, e) {
-                        if (edge[j].fi == posi && edge[j].se == link[posi][i]) {
-                            ecolor[j] = step;
-                            break;
-                        }
+                vcolor[posi].pb(step);
+                vcolor[link[posi][i]].pb(step);
+                frs(j, 0, e) {
+                    if (edge[j].fi == posi && edge[j].se == link[posi][i]) {
+                        ecolor[j] = step;
+                        break;
+                    } elif (edge[j].fi == link[posi][i] && edge[j].se == posi) {
+                        ecolor[j] = step;
+                        break;
                     }
+                }
+                if (step == color) {
                     ++color;
                 }
             } else {
@@ -102,6 +114,9 @@ void solve() {
                 vcolor[link[posi][i]].pb(step);
                 frs(j, 0, e) {
                     if (edge[j].fi == posi && edge[j].se == link[posi][i]) {
+                        ecolor[j] = step;
+                        break;
+                    } elif (edge[j].fi == link[posi][i] && edge[j].se == posi) {
                         ecolor[j] = step;
                         break;
                     }
